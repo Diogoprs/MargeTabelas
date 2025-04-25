@@ -4,39 +4,39 @@
 	,	@LastDayOfMonth			DATE
 	,	@FirstDaySkFecha		VARCHAR(200)
 	,	@LastDaySkFecha			VARCHAR(200)
-	,	@Msg					VARCHAR(MAX)
-	,	@Qt_Linhas				INT
+	,	@Msg				VARCHAR(MAX)
+	,	@Qt_Linhas			INT
 	,	@Total_Linhas			INT = 0
 	,	@QTDE_INSERT			INT = 0
 	,	@DiasUteisSemFDS		INT
-	,	@DiasUteisParaFimSemFDS INT
+	,	@DiasUteisParaFimSemFDS 	INT
 	,	@TotalDiasUteis			INT
-	,	@FirstDayOfYear         DATE
-	,	@FirstDayPreviousMonth  DATE
+	,	@FirstDayOfYear         	DATE
+	,	@FirstDayPreviousMonth  	DATE
 	,	@DiasSegParaFim			INT
-	,	@DiasUteisSemSegunda	INT
-	,	@DiasUteisParaFimSemSegunda INT
-	,	@DiasSeg				INT
-	,	@LastDayOfNextMonth DATE
-	,	@LastDayOfNextMonthSkFecha VARCHAR(200)
+	,	@DiasUteisSemSegunda		INT
+	,	@DiasUteisParaFimSemSegunda 	INT
+	,	@DiasSeg			INT
+	,	@LastDayOfNextMonth 		DATE
+	,	@LastDayOfNextMonthSkFecha 	VARCHAR(200)
 
 
-	SET @CurrentDate				= CASE WHEN @CurrentDate IS NULL THEN DATEADD(DAY, -1, GETDATE() ) ELSE @CurrentDate END
+	SET @CurrentDate			= CASE WHEN @CurrentDate IS NULL THEN DATEADD(DAY, -1, GETDATE() ) ELSE @CurrentDate END
 	SET @FirstDayOfMonth			= DATEADD(DAY, 1 - DAY(@CurrentDate), @CurrentDate)
-	SET @LastDayOfMonth				= EOMONTH(@CurrentDate)
+	SET @LastDayOfMonth			= EOMONTH(@CurrentDate)
 	SET @FirstDaySkFecha			= convert(varchar, DATEADD(DAY, 1 - DAY(@CurrentDate), @CurrentDate), 112)
-	SET @LastDaySkFecha				= convert(varchar, eomonth(@CurrentDate), 112)
+	SET @LastDaySkFecha			= convert(varchar, eomonth(@CurrentDate), 112)
 	SET @DiasUteisSemFDS			= dbo.ContarDiasUteisSemFDS(@FirstDayOfMonth, @CurrentDate)
 	SET @DiasUteisParaFimSemFDS		= dbo.ContarDiasUteisFaltantesSemFDS(@CurrentDate, @LastDayOfMonth)
-	SET @TotalDiasUteis				= @DiasUteisSemFDS + @DiasUteisParaFimSemFDS
-	SET @FirstDayOfYear				= DATEFROMPARTS(YEAR(@CurrentDate), 1, 1)
+	SET @TotalDiasUteis			= @DiasUteisSemFDS + @DiasUteisParaFimSemFDS
+	SET @FirstDayOfYear			= DATEFROMPARTS(YEAR(@CurrentDate), 1, 1)
 	SET @FirstDayPreviousMonth		= DATEADD(MONTH, -1, DATEADD(DAY, 1 - DAY(@CurrentDate), @CurrentDate))
-	SET @DiasSegParaFim				= dbo.ContarSabadDomSeg(@CurrentDate, @LastDayOfMonth)
+	SET @DiasSegParaFim			= dbo.ContarSabadDomSeg(@CurrentDate, @LastDayOfMonth)
 	SET @DiasUteisSemSegunda		= dbo.ContarDiasUteis(@FirstDayOfMonth, @CurrentDate)
-	SET @DiasUteisParaFimSemSegunda = dbo.ContarDiasUteisFaltantes(@CurrentDate, @LastDayOfMonth)
-	SET @DiasSeg					= dbo.ContarSabadDomSeg(@FirstDayOfMonth, @CurrentDate)
+	SET @DiasUteisParaFimSemSegunda 	= dbo.ContarDiasUteisFaltantes(@CurrentDate, @LastDayOfMonth)
+	SET @DiasSeg				= dbo.ContarSabadDomSeg(@FirstDayOfMonth, @CurrentDate)
 	SET @LastDayOfNextMonth			= EOMONTH(DATEADD(MONTH, 1, @CurrentDate))
-	SET @LastDayOfNextMonthSkFecha	= convert(varchar, eomonth(@LastDayOfNextMonth), 112)
+	SET @LastDayOfNextMonthSkFecha		= convert(varchar, eomonth(@LastDayOfNextMonth), 112)
 
 	--SELECT 
 	--	@CurrentDate CurrentDate
@@ -57,10 +57,10 @@
 	--,	@LastDayOfNextMonthSkFecha LastDayOfNextMonthSkFecha
 
 	-- Capturando as propostas da conexion global
-	-- AlteraÁ„o dia 24-04-2025 - Feito por Diogo Pereira dos Santos
-	-- Inclus„o de processo para captura dados de Rechasada e mergem com a tabela #tmp_rds_produto_auto_proposta
+	-- Altera√ß√£o dia 24-04-2025 - Feito por Diogo Pereira dos Santos
+	-- Inclus√£o de processo para captura dados de Rechasada e mergem com a tabela #tmp_rds_produto_auto_proposta
 
-	drop table if exists #tmp_rds_produto_auto_proposta
+drop table if exists #tmp_rds_produto_auto_proposta
 
     SELECT 
         A.IND_SISTEMA,
@@ -84,9 +84,9 @@
     GROUP BY 
         A.IND_SISTEMA, A.NUM_PROPUESTA, A.NUM_COTIZACION, A.FEC_EMISION_SUPLEMENTO, C.NOM_ESTADO, D.TIPO_SUPLEMENTO, D.NOM_SUPLEMENTO
 
-	-- Incluindo dados de rechazada
+-- Incluindo dados de rechazada
 
-	drop table if exists #tmp_rds_produto_auto_proposta_rechazada
+drop table if exists #tmp_rds_produto_auto_proposta_rechazada
 
     SELECT 
         A.IND_SISTEMA,
@@ -118,12 +118,12 @@
 		AND target.NUM_COTIZACION = source.NUM_COTIZACION
 		AND target.FEC_PROPUESTA = source.FEC_PROPUESTA
 
-	-- Atualiza onde j· existe
+	-- Atualiza onde j√° existe
 	WHEN MATCHED AND target.NOM_ESTADO_PROPUESTA NOT IN ('COM RESTRICAO', 'EM ANALISE') THEN
 		UPDATE SET
 			target.NOM_ESTADO_PROPUESTA = source.NOM_ESTADO_PROPUESTA
 
-	-- Insere onde n„o existe
+	-- Insere onde n√£o existe
 	WHEN NOT MATCHED BY TARGET THEN
 		INSERT (
 			IND_SISTEMA,
@@ -144,7 +144,7 @@
 			source.NOM_SUPLEMENTO_PROPUESTA
 		);
 
-		-- Atualiza estados especÌficos para 'PENDENTE'
+		-- Atualiza estados espec√≠ficos para 'PENDENTE'
 		UPDATE #tmp_rds_produto_auto_proposta
 		SET NOM_ESTADO_PROPUESTA = 'PENDENTE'
 		WHERE NOM_ESTADO_PROPUESTA IN ('COM RESTRICAO', 'EM ANALISE');
